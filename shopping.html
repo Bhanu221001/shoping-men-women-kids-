@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Categories Tabs</title>
+    <style>
+      .tab {
+        width: 230px;
+        display: inline-block;
+        padding: 10px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+      }
+      .tab:hover{
+        background-color: black;
+        color: white;
+      }
+
+      .content {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .product {
+        position: relative;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .product img {
+        width: 310px;
+        height: 360px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-left: 40px;
+      }
+
+      .badge {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: #4caf50;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #title{
+        margin-left: -100px;
+        width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+       #vendor{
+        position: relative;
+        top: -67px;
+        left: 60px;
+      }
+      #productdetails{
+        display: flex;
+        justify-content: space-around;
+        margin-top: -50px;
+      }
+      .badge{
+        background-color: white;
+        color: black;
+        position: relative;
+        top: -405px;
+        left: -60px;
+      }
+      #price{
+        list-style: none;
+        padding-left: 20px;
+      }
+      #compareprice{
+        list-style: none;
+        padding-left: 20px;
+        text-decoration: line-through;
+        color: #ccc;
+      }
+      #offer{
+        list-style: none;
+        padding-left: 20px;
+        color: red;
+      }
+      #cartbutton{
+        background-color: black;
+        color: white;
+        width: 300px;
+        height: 50px;
+        margin-left: 50px;
+        font-size: 20px;
+        border-radius: 5px;
+      }
+@media (max-width: 767px) {
+  .product {
+    padding: 5px;
+  }
+
+  #categoriesTabs,
+  #categoryContent {
+    text-align: center;
+  }
+
+  .tab {
+    width: 100%; 
+    margin-bottom: 5px;
+  }
+
+  .content {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product img {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  #title {
+    margin-left: -100px;
+  }
+
+  #productdetails {
+    display: flex;
+  }
+
+  #cartbutton {
+    margin-top: 10px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .product {
+    padding: 8px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .product {
+    padding: 10px;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <center>
+      <h1>SELECT YOUR CHOICE</h1>
+    <div id="categoriesTabs"></div>
+    <div id="categoryContent"></div>
+    </center>
+    <script>
+      fetch(
+        "https://cdn.shopify.com/s/files/1/0564/3685/0790/files/multiProduct.json"
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (!data || !data.categories) {
+            throw new Error("Categories property not found in JSON response");
+          }
+
+          const category = data.categories;
+          const tabsContainer = document.getElementById("categoriesTabs");
+          const contentContainer = document.getElementById("categoryContent");
+          console.log(data)
+          category.forEach((category, index) => {
+            const tabElement = document.createElement("div");
+            tabElement.classList.add("tab");
+            tabElement.textContent = category.category_name;
+
+            const contentElement = document.createElement("div");
+            contentElement.classList.add("content");
+
+            category.category_products.forEach((product) => {
+              const productElement = document.createElement("div");
+              productElement.classList.add("product");
+              productElement.innerHTML = `
+              <img src="${product.image}" alt="${product.title}">
+              <h3 id="title">${product.title}</h3>
+              ${
+                product.badge_text
+                  ? `<div class="badge">${product.badge_text}</div>`
+                  : ""
+              }
+              <li id="vendor">${product.vendor}</li>
+              <div id="productdetails">
+                <li id="price">Price: $${product.price}</li>
+                <li id="compareprice">${product.compare_at_price}.00</li>
+                <li id="offer">50% off</li>
+              </div>
+              <button id="cartbutton">Add to Cart</button>
+            `;
+              contentElement.appendChild(productElement);
+            });
+
+            tabElement.addEventListener("click", () => {
+              document.querySelectorAll(".content").forEach((content) => {
+                content.style.display = "none";
+              });
+
+              contentElement.style.display = "flex";
+            });
+
+            tabsContainer.appendChild(tabElement);
+            contentContainer.appendChild(contentElement);
+
+            if (index === 0) {
+              tabElement.click();
+            }
+          });
+        })
+        .catch((error) => {
+          console.error("There was a problem with the fetch operation:", error);
+        });
+    </script>
+  </body>
+</html>
